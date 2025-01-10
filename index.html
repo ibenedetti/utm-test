@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Form</title>
+  <script>
+    // Handle form submission
+    document.getElementById('utmForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+  
+      // Collect form data
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        number: document.getElementById('number').value,
+      };
+  
+      // Retrieve UTM data from localStorage
+      const utmData = JSON.parse(localStorage.getItem('utmData')) || {};
+  
+      // Prepare template parameters
+      const templateParams = {
+        name: formData.name,
+        user_email: formData.email,
+        message: `Name: ${formData.name}\nNumber: ${formData.number}\nEmail: ${formData.email}\nUTM Parameters: ${JSON.stringify(utmData)}`
+      };
+  
+      // Send email via EmailJS
+      try {
+        const response = await emailjs.send(
+          'service_ueigjld',
+          'template_88cv7ic',
+          templateParams,
+          'VWNebOgIYa__KjLMN'
+        );
+        console.log('Email successfully sent!', response);
+      } catch (error) {
+        console.error('Error sending email:', error);
+      }
+    });
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <form id="utmForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <br>
+    <label for="number">Number:</label>
+    <input type="text" id="number" name="number" required>
+    <br>
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    emailjs.init('VWNebOgIYa__KjLMN'); // Initialize EmailJS
+
+    // Function to get cookie value
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+      }
+      return '';
+    }
+
+    // Function to set cookie
+    function setCookie(name, value) {
+      const d = new Date();
+      d.setTime(d.getTime() + (14 * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+      console.log(`Stored ${name}=${value} in cookie`);
+    }
+
+    // Function to capture and store UTM parameters
+    function captureUTMs() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+      
+      utmParams.forEach(param => {
+        const value = urlParams.get(param);
+        if (value) {
+          setCookie(param, value);
+        }
+      });
+    }
+
+    // Populate the form with UTM data
+    function collectUTMData() {
+      const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+      const utmData = {};
+      
+      utmParams.forEach(param => {
+        const value = getCookie(param);
+        if (value) {
+          utmData[param] = value;
+        }
+      });
+
+      return utmData;
+    }
+
+    // Handle form submission
+    document.getElementById('utmForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Collect form data
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        number: document.getElementById('number').value,
+      };
+
+      // Collect UTM data
+      const utmData = collectUTMData();
+
+      // Prepare template parameters
+      const templateParams = {
+        name: formData.name,
+        user_email: formData.email,
+        message: `Name: ${formData.name}\nNumber: ${formData.number}\nEmail: ${formData.email}\nUTM Parameters: ${JSON.stringify(utmData)}`
+      };
+
+      // Send email via EmailJS
+      try {
+        const response = await emailjs.send(
+          'service_ueigjld',
+          'template_88cv7ic',
+          templateParams,
+          'VWNebOgIYa__KjLMN'
+        );
+        console.log('Email successfully sent!', response);
+        alert('Email successfully sent!');
+      } catch (error) {
+        console.error('Error sending email:', error);
+      }
+    });
+
+    // Capture UTM parameters on load
+    captureUTMs();
+  </script>
+</body>
+</html>
