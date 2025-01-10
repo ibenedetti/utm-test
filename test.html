@@ -21,18 +21,13 @@
     </div>
 
     <div class="debug-box">
-        <h3>Search String:</h3>
-        <div id="searchString"></div>
+        <h3>Original Parameters:</h3>
+        <div id="originalParams"></div>
     </div>
 
     <div class="debug-box">
-        <h3>Decoded Parameters:</h3>
-        <div id="decodedParams"></div>
-    </div>
-
-    <div class="debug-box">
-        <h3>URLSearchParams entries:</h3>
-        <div id="searchParamsEntries"></div>
+        <h3>Mapped UTM Parameters:</h3>
+        <div id="mappedParams"></div>
     </div>
 
     <script>
@@ -41,30 +36,54 @@
             const fullUrl = window.location.href;
             document.getElementById('rawUrl').textContent = fullUrl;
             
-            // Get and display the raw search string
-            const searchString = window.location.search;
-            document.getElementById('searchString').textContent = searchString;
-            
-            // Display decoded parameters
-            const decodedSearch = decodeURIComponent(searchString);
-            document.getElementById('decodedParams').textContent = decodedSearch;
-            
-            // Use URLSearchParams
+            // Get URL parameters
             const params = new URLSearchParams(window.location.search);
-            let paramsOutput = '';
-            for (const [key, value] of params) {
-                paramsOutput += `${key}: ${value}\n`;
-            }
-            document.getElementById('searchParamsEntries').textContent = paramsOutput || 'No parameters found';
             
-            // Console logging for additional debugging
+            // Display original parameters
+            let originalOutput = '';
+            for (const [key, value] of params) {
+                originalOutput += `${key}: ${value}\n`;
+            }
+            document.getElementById('originalParams').textContent = 
+                originalOutput || 'No parameters found';
+
+            // Map for parameter conversion
+            const paramMapping = {
+                's': 'utm_source',
+                'm': 'utm_medium',
+                'c': 'utm_campaign',
+                't': 'utm_term',
+                'ct': 'utm_content'
+            };
+
+            // Create UTM object
+            const utmData = {};
+            for (const [shortKey, utmKey] of Object.entries(paramMapping)) {
+                const value = params.get(shortKey);
+                if (value) {
+                    utmData[utmKey] = value;
+                }
+            }
+
+            // Display mapped parameters
+            document.getElementById('mappedParams').textContent = 
+                JSON.stringify(utmData, null, 2);
+
+            // Log everything to console
             console.log({
                 fullUrl,
-                searchString,
-                decodedSearch,
-                paramsEntries: Object.fromEntries(params)
+                originalParams: Object.fromEntries(params),
+                mappedUtmParams: utmData
             });
         }
     </script>
+
+    <div style="margin-top: 20px;">
+        <h3>Test Links:</h3>
+        <ul>
+            <li><a href="?s=test-source&m=test-medium&c=test-campaign">Test UTM Parameters</a></li>
+            <li><a href="?test=1">Test Regular Parameter</a></li>
+        </ul>
+    </div>
 </body>
 </html>
