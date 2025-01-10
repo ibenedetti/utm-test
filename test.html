@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UTM Test</title>
+</head>
+<body>
+    <h1>URL Parameters Test</h1>
+    <div id="output" style="white-space: pre; font-family: monospace;"></div>
+
+    <script>
+        // Immediately run when page loads
+        window.onload = function() {
+            // Get the full URL
+            const fullUrl = window.location.href;
+            
+            // Get the search parameters
+            const params = new URLSearchParams(window.location.search);
+            
+            // Create output text
+            let output = 'Full URL:\n' + fullUrl + '\n\nParameters:\n';
+            
+            // Add each parameter to the output
+            for (const [key, value] of params) {
+                output += `${key}: ${value}\n`;
+            }
+            
+            // Display the output
+            document.getElementById('output').textContent = output;
+            
+            // Also log to console
+            console.log('Full URL:', fullUrl);
+            console.log('Parameters:', Object.fromEntries(params));
+        }
+    </script>
+</body>
+</html>
