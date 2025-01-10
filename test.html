@@ -2,34 +2,68 @@
 <html>
 <head>
     <title>UTM Test</title>
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .debug-box { 
+            background: #f5f5f5; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
     <h1>URL Parameters Test</h1>
-    <div id="output" style="white-space: pre; font-family: monospace;"></div>
+    
+    <div class="debug-box">
+        <h3>Raw URL:</h3>
+        <div id="rawUrl"></div>
+    </div>
+
+    <div class="debug-box">
+        <h3>Search String:</h3>
+        <div id="searchString"></div>
+    </div>
+
+    <div class="debug-box">
+        <h3>Decoded Parameters:</h3>
+        <div id="decodedParams"></div>
+    </div>
+
+    <div class="debug-box">
+        <h3>URLSearchParams entries:</h3>
+        <div id="searchParamsEntries"></div>
+    </div>
 
     <script>
-        // Immediately run when page loads
         window.onload = function() {
-            // Get the full URL
+            // Get and display the raw URL
             const fullUrl = window.location.href;
+            document.getElementById('rawUrl').textContent = fullUrl;
             
-            // Get the search parameters
+            // Get and display the raw search string
+            const searchString = window.location.search;
+            document.getElementById('searchString').textContent = searchString;
+            
+            // Display decoded parameters
+            const decodedSearch = decodeURIComponent(searchString);
+            document.getElementById('decodedParams').textContent = decodedSearch;
+            
+            // Use URLSearchParams
             const params = new URLSearchParams(window.location.search);
-            
-            // Create output text
-            let output = 'Full URL:\n' + fullUrl + '\n\nParameters:\n';
-            
-            // Add each parameter to the output
+            let paramsOutput = '';
             for (const [key, value] of params) {
-                output += `${key}: ${value}\n`;
+                paramsOutput += `${key}: ${value}\n`;
             }
+            document.getElementById('searchParamsEntries').textContent = paramsOutput || 'No parameters found';
             
-            // Display the output
-            document.getElementById('output').textContent = output;
-            
-            // Also log to console
-            console.log('Full URL:', fullUrl);
-            console.log('Parameters:', Object.fromEntries(params));
+            // Console logging for additional debugging
+            console.log({
+                fullUrl,
+                searchString,
+                decodedSearch,
+                paramsEntries: Object.fromEntries(params)
+            });
         }
     </script>
 </body>
