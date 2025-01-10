@@ -28,6 +28,7 @@
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
         document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
         localStorage.setItem(name, value); // Backup storage
+        console.log(`Setting cookie and localStorage for ${name}: ${value}`);
       },
 
       getCookie(name) {
@@ -36,17 +37,44 @@
         return parts.length === 2 ? parts.pop().split(';').shift() : null;
       },
 
+      getURLParameter(name) {
+        const params = new URLSearchParams(window.location.search);
+        const value = params.get(name);
+        console.log(`URL parameter ${name}: ${value}`);
+        return value;
+      },
+
       captureUTMs() {
-        const urlParams = new URLSearchParams(window.location.search);
         const utmData = {};
         
         // Process each UTM parameter
         Object.keys(DEFAULT_UTM).forEach(param => {
-          const value = urlParams.get(param) || this.getCookie(param) || DEFAULT_UTM[param];
-          this.setCookie(param, value);
-          utmData[param] = value;
+          // First check URL, then cookie, then default
+          const urlValue = this.getURLParameter(param);
+          const cookieValue = this.getCookie(param);
+          
+          const finalValue = urlValue || cookieValue || DEFAULT_UTM[param];
+          
+          // Only set cookie if we have a non-default value
+          if (finalValue !== DEFAULT_UTM[param]) {
+            this.setCookie(param, finalValue);
+          }
+          
+          utmData[param] = finalValue;
+          console.log(`Captured ${param}: ${finalValue}`);
         });
 
+        // Additional parameters like utm_id
+        const extraParams = ['utm_id'];
+        extraParams.forEach(param => {
+          const value = this.getURLParameter(param);
+          if (value) {
+            utmData[param] = value;
+            this.setCookie(param, value);
+          }
+        });
+
+        console.log('Final UTM Data:', utmData);
         return utmData;
       },
 
@@ -103,6 +131,7 @@
 
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('Page loaded, capturing UTMs...');
       const utmData = UTMManager.captureUTMs();
       UTMManager.displayUTMDebug(utmData);
       document.getElementById('utmForm').addEventListener('submit', handleSubmit);
